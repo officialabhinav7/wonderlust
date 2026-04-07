@@ -1,0 +1,40 @@
+.navbar{
+    background-color: #333;
+    color: #fff;
+    padding: 15px;
+}
+.navbar a{
+    color: #fff;
+    text-decoration: none;
+    margin-right: 15px;
+}
+
+.social{
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-size: 22px;
+}
+.cards{
+    border: none !important;
+    margin-bottom: 2rem;
+
+}
+.card-img-top{
+   border-radius: 1rem !important;
+   width: 100% !important;
+   object-fit: cover !important;
+}
+.card-body{
+    padding: 0 !important;
+}
+.card-text{
+    font-size: 1.2rem !important;
+    font-weight: bold !important;
+}
+.card-img-overlay 
+:hover{
+    opacity: 0.2;
+    background-color: white;
+}
+

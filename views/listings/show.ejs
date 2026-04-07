@@ -1,0 +1,44 @@
+<% layout("layouts/boilerplate") %>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<div class="container mt-5">
+  <div class="card shadow-lg p-4">
+
+    <!-- Image -->
+    <img 
+      src="<%= listing1.image?.url || listing1.image %>" 
+      class="card-img-top mb-4" 
+      style="max-height:400px; object-fit:cover; border-radius:10px;"
+    >
+
+    <!-- Title -->
+    <h2 class="mb-3"><%= listing1.title %></h2>
+
+    <!-- Price -->
+    <h4 class="text-success mb-3">₹ <%= listing1.price %></h4>
+
+    <!-- Description -->
+    <p class="mb-3"><%= listing1.description %></p>
+
+    <!-- Location -->
+    <p class="text-muted">
+      📍 <%= listing1.location %>, <%= listing1.country %>
+    </p>
+
+    <!-- Buttons -->
+    <div class="d-flex gap-3 mt-4">
+
+      <!-- Edit -->
+      <form action="/listings/<%= listing1._id %>/edit" method="get">
+        <button class="btn btn-warning">Edit</button>
+      </form>
+
+      <!-- Delete -->
+      <form method="post" action="/listings/<%= listing1._id %>?_method=delete">
+        <button class="btn btn-danger">Delete</button>
+      </form>
+
+    </div>
+
+  </div>
+</div>
