@@ -8,25 +8,25 @@
     <form action="/listings/<%= listing1._id %>?_method=put" method="post">
 
       <label class="form-label">Title</label>
-      <input class="form-control mb-3" type="text" name="title" value="<%= listing1.title %>" required>
+      <input class="form-control mb-3" type="text" name="listing[title]" value="<%= listing1.title %>" required>
 
       <label class="form-label">Description</label>
-      <textarea class="form-control mb-3" name="description" required><%= listing1.description %></textarea>
+      <textarea class="form-control mb-3" name="listing[description]" required><%= listing1.description %></textarea>
 
       <label class="form-label">Image URL</label>
-      <input class="form-control mb-2" id="imageInput" name="image" value="<%= listing1.image %>">
+      <input class="form-control mb-2" id="imageInput" name="listing[image]" value="<%= listing1.image %>">
 
       <!-- Image Preview -->
       <img id="preview" src="<%= listing1.image %>" class="mb-3" style="max-width:200px; border-radius:10px;">
 
       <label class="form-label">Price</label>
-      <input class="form-control mb-3" type="number" name="price" value="<%= listing1.price %>" required>
+      <input class="form-control mb-3" type="number" name="listing[price]" value="<%= listing1.price %>" required>
 
       <label class="form-label">Location</label>
-      <input class="form-control mb-3" name="location" value="<%= listing1.location %>">
+      <input class="form-control mb-3" name="listing[location]" value="<%= listing1.location %>">
 
       <label class="form-label">Country</label>
-      <input class="form-control mb-4" type="text" name="country" value="<%= listing1.country %>">
+      <input class="form-control mb-4" type="text" name="listing[country]" value="<%= listing1.country %>">
 
       <button class="btn btn-success w-100">Update Listing</button>
 

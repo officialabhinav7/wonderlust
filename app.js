@@ -14,19 +14,30 @@ app.use(express.static(path.join(__dirname, "public"))
 );
 const wrapAsync=require("./utils/wrapAsync");
 const ExpressError=require("./utils/expressError");
+const { listingSchema } = require("./joi");
 
 
+const validateListing = (req, res, next) => {
+     console.log(req.body);
+  const { error } = listingSchema.validate(req.body);
 
+  if (error) {
+    console.log(error);
+    throw new ExpressError(400, error.details[0].message);
+  }
 
+  next();
+};
+async function main(){
+    await mongoose.connect("mongodb://localhost:27017/wonderlust");
+    console.log("Connected to MongoDB");
+}
 
 
 app.listen(3000,()=>{
     console.log("Server is running on port 3000");  
 })
-async function main(){
-    await mongoose.connect("mongodb://localhost:27017/wonderlust");
-    console.log("Connected to MongoDB");
-}
+
 main()
     .then(()=>{
         console.log("connected to mongodb")
@@ -60,14 +71,26 @@ app.get("/listings/new",(req,res)=>{
     res.render("listings/new");
 });
 app.get("/listings/:id", wrapAsync(async (req, res) => {
-  let data = await listing.findById(req.params.id);
-  res.send(data);
+  let listing1 = await listing.findById(req.params.id);
+  if (!listing1) {
+    throw new ExpressError(404, "Listing not found");
+  }
+
+  res.render("listings/show", { listing1}); // ✅ IMPORTANT
 }));
-app.post("/listings",async(req,res)=>{
-    const newlisting=new listing(req.body);
+app.post(
+  "/listings",
+  validateListing, // 👈 Joi middleware
+  wrapAsync(async (req, res) => {
+   
+    const newlisting = new listing(req.body.listing);
+    if (newlisting.image && typeof newlisting.image === 'string') {
+      newlisting.image = { url: newlisting.image, filename: "listing-image" };
+    }
     await newlisting.save();
     res.redirect("/listings");
-});
+  })
+);
 app.get("/listings/:id/edit",async(req,res)=>{
     let {id}=req.params;
     const listing1 =await listing.findById(id);

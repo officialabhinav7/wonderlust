@@ -7,17 +7,17 @@
 
     <form method="post" action="/listings">
       
-      <input class="form-control mb-3" type="text" name="title" placeholder="Enter title"  required>
+      <input class="form-control mb-3" type="text" name="listing[title]" placeholder="Enter title"  required>
 
-      <textarea class="form-control mb-3" name="description" placeholder="Enter description" required></textarea>
+      <textarea class="form-control mb-3" name="listing[description]" placeholder="Enter description" required></textarea>
 
-      <input class="form-control mb-3" name="image" placeholder="Enter image URL">
+      <input class="form-control mb-3" name="listing[image]" placeholder="Enter image URL">
 
-      <input class="form-control mb-3" name="price" placeholder="Enter price" required>
+      <input class="form-control mb-3" name="listing[price]" placeholder="Enter price" required>
 
-      <input class="form-control mb-3" name="location" placeholder="Enter location" required>
+      <input class="form-control mb-3" name="listing[location]" placeholder="Enter location" required>
 
-      <input class="form-control mb-3" type="text" name="country" placeholder="Enter country" required>
+      <input class="form-control mb-3" type="text" name="listing[country]" placeholder="Enter country" required>
 
       <button class="btn btn-primary w-100">Add</button>
 
