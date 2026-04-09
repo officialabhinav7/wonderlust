@@ -18,6 +18,12 @@ const mongoose=require("mongoose");
         
         location:String,
         country:String,
+         reviews: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Review"
+        }
+    ]
 
  })
 

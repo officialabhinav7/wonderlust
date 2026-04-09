@@ -12,13 +12,14 @@ app.use(methodoverride("_method"));
 app.engine('ejs',ejsmate);
 app.use(express.static(path.join(__dirname, "public"))
 );
+const review=require("./models/review");
 const wrapAsync=require("./utils/wrapAsync");
 const ExpressError=require("./utils/expressError");
 const { listingSchema } = require("./joi");
 
 
 const validateListing = (req, res, next) => {
-     console.log(req.body);
+     
   const { error } = listingSchema.validate(req.body);
 
   if (error) {
@@ -91,6 +92,18 @@ app.post(
     res.redirect("/listings");
   })
 );
+app.post("/listings/:id/reviews", wrapAsync(async (req, res) => {
+    let listing = await listing.findById(req.params.id);
+
+    let newReview = new review(req.body.review);
+    await newReview.save();
+
+    listing.reviews.push(newReview);
+    await listing.save();
+
+    res.redirect(`/listings/${listing._id}`);
+}));
+
 app.get("/listings/:id/edit",async(req,res)=>{
     let {id}=req.params;
     const listing1 =await listing.findById(id);
