@@ -21,7 +21,7 @@ const mongoose=require("mongoose");
          reviews: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Review"
+            ref: "review"
         }
     ]
 

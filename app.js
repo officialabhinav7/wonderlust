@@ -72,7 +72,7 @@ app.get("/listings/new",(req,res)=>{
     res.render("listings/new");
 });
 app.get("/listings/:id", wrapAsync(async (req, res) => {
-  let listing1 = await listing.findById(req.params.id);
+  let listing1 = await listing.findById(req.params.id).populate('reviews');
   if (!listing1) {
     throw new ExpressError(404, "Listing not found");
   }
@@ -93,15 +93,15 @@ app.post(
   })
 );
 app.post("/listings/:id/reviews", wrapAsync(async (req, res) => {
-    let listing = await listing.findById(req.params.id);
+    let listingdata= await listing.findById(req.params.id);
 
     let newReview = new review(req.body.review);
     await newReview.save();
 
-    listing.reviews.push(newReview);
-    await listing.save();
+    listingdata.reviews.push(newReview);
+    await listingdata.save();
 
-    res.redirect(`/listings/${listing._id}`);
+    res.redirect(`/listings/${listingdata._id}`);
 }));
 
 app.get("/listings/:id/edit",async(req,res)=>{
@@ -120,6 +120,15 @@ app.delete("/listings/:id",async(req,res)=>{
     await listing.findByIdAndDelete(id);
     res.redirect("/listings");
 });
+app.delete("/listings/:id/reviews/:reviewid", wrapAsync(async (req, res) => {
+    let { id, reviewid } = req.params;
+      // Delete the actual review document
+    await review.findByIdAndDelete(reviewid);
+    // Remove the review reference from the listing
+    await listing.findByIdAndUpdate(id, { $pull: { reviews: reviewid } });
+    res.redirect(`/listings/${id}`);
+}));
+
 // 404 handler (for unknown routes)
 app.use((req, res, next) => {
   next(new ExpressError(404, "Page Not Found"));
