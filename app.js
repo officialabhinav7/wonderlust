@@ -134,7 +134,7 @@ app.use((req, res, next) => {
   next(new ExpressError(404, "Page Not Found"));
 });
 
-// FINAL error handler (renders error.ejs)
+// FINAL error handler (renders error.ejs)// changed
 app.use((err, req, res, next) => {
   let { status = 500, message = "Something went wrong" } = err;
 
