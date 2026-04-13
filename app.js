@@ -1,147 +1,91 @@
-const express=require("express");
-const app=express();
-const mongoose=require("mongoose");
-const listing = require("./models/listing");
+const express = require("express");
+const app = express();
+const mongoose = require("mongoose");
 const path = require("path");
-const ejsmate=require("ejs-mate");
+const ejsMate = require("ejs-mate");
+const methodOverride = require("method-override");
+
+const ExpressError = require("./utils/expressError");
+const wrapAsync = require("./utils/wrapAsync");
+const Joi = require("joi");
+const { listingSchema } = require("./joi");
+const Listing = require("./models/listing");
+const Review = require("./models/review");
+ const session = require("express-session");
+const flash = require("connect-flash");
+//flash middleware
+
+
+sessionconfig={
+    secret:"secretstring",
+    resave:false,
+    saveUninitialized:true,
+    cookie:{
+        httpOnly:true,
+        expires:Date.now()+1000*60*60*24*7,
+        maxAge:1000*60*60*24*7
+    }
+}
+app.use(session(sessionconfig));
+app.use(flash());
+app.use((req, res, next) => {
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    next();
+});
+
+
+
+// 🔥 ROUTES
+const listingRoutes = require("./routes/listings");
+const reviewRoutes = require("./routes/reviews");
+
+// =================== CONFIG ===================
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-app.use(express.urlencoded({extended:true}));
-const methodoverride=require("method-override");
-app.use(methodoverride("_method"));
-app.engine('ejs',ejsmate);
-app.use(express.static(path.join(__dirname, "public"))
-);
-const review=require("./models/review");
-const wrapAsync=require("./utils/wrapAsync");
-const ExpressError=require("./utils/expressError");
-const { listingSchema } = require("./joi");
+app.engine("ejs", ejsMate);
 
+app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride("_method"));
+app.use(express.static(path.join(__dirname, "public")));
 
-const validateListing = (req, res, next) => {
-     
-  const { error } = listingSchema.validate(req.body);
+// =================== DB ===================
 
-  if (error) {
-    console.log(error);
-    throw new ExpressError(400, error.details[0].message);
-  }
-
-  next();
-};
-async function main(){
-    await mongoose.connect("mongodb://localhost:27017/wonderlust");
-    console.log("Connected to MongoDB");
+async function main() {
+  await mongoose.connect("mongodb://127.0.0.1:27017/wonderlust");
+  console.log("Connected to MongoDB");
 }
 
-
-app.listen(3000,()=>{
-    console.log("Server is running on port 3000");  
-})
-
 main()
-    .then(()=>{
-        console.log("connected to mongodb")
-    })
-    .catch((err)=>{
-        console.log(err);
-    })
-app.get("/",(req,res)=>{
-    res.send("Hello World");
+  .then(() => console.log("DB connected"))
+  .catch((err) => console.log(err));
+
+// =================== ROUTES ===================
+
+app.get("/", (req, res) => {
+  res.send("Hello World");
 });
 
-// app.get("/testlisting",async (req,res)=>{
-//     let simplelisting=new listing({
-//     title:"Beautiful Beach House",
-//     description:"A stunning beach house with breathtaking ocean views. This property features 4 bedrooms, 3 bathrooms, and a spacious living area perfect for entertaining. Enjoy the private pool and direct access to the beach. Ideal for families or groups looking for a luxurious getaway.",
-//     price:500,
-//     Location:"Malibu",
-//     country:"USA",
-//     });
-//     await simplelisting.save();
-//     console.log("Listing saved to database");
-//     res.send("successfull listing");
+// 🔥 USE ROUTERS
+app.use("/listings", listingRoutes);
+app.use("/listings/:id/reviews", reviewRoutes);
 
-// });
-app.get("/listings",async (req,res)=>{  
-       
-        const alllistings=await listing.find({});
-        res.render("listings/index",{alllistings})
-});
-app.get("/listings/new",(req,res)=>{
-    res.render("listings/new");
-});
-app.get("/listings/:id", wrapAsync(async (req, res) => {
-  let listing1 = await listing.findById(req.params.id).populate('reviews');
-  if (!listing1) {
-    throw new ExpressError(404, "Listing not found");
-  }
+// =================== ERROR HANDLING ===================
 
-  res.render("listings/show", { listing1}); // ✅ IMPORTANT
-}));
-app.post(
-  "/listings",
-  validateListing, // 👈 Joi middleware
-  wrapAsync(async (req, res) => {
-   
-    const newlisting = new listing(req.body.listing);
-    if (newlisting.image && typeof newlisting.image === 'string') {
-      newlisting.image = { url: newlisting.image, filename: "listing-image" };
-    }
-    await newlisting.save();
-    res.redirect("/listings");
-  })
-);
-app.post("/listings/:id/reviews", wrapAsync(async (req, res) => {
-    let listingdata= await listing.findById(req.params.id);
-
-    let newReview = new review(req.body.review);
-    await newReview.save();
-
-    listingdata.reviews.push(newReview);
-    await listingdata.save();
-
-    res.redirect(`/listings/${listingdata._id}`);
-}));
-
-app.get("/listings/:id/edit",async(req,res)=>{
-    let {id}=req.params;
-    const listing1 =await listing.findById(id);
-     res.render("listings/edit",{listing1 });
-});
-app.put("/listings/:id",async(req,res)=>{
-    let {id}=req.params;
-    await listing.findByIdAndUpdate(id,req.body);
-     console.log(req.body);
-    res.redirect(`/listings/${id}`);
-});
-app.delete("/listings/:id",async(req,res)=>{
-    let {id}=req.params;
-    await listing.findByIdAndDelete(id);
-    res.redirect("/listings");
-});
-app.delete("/listings/:id/reviews/:reviewid", wrapAsync(async (req, res) => {
-    let { id, reviewid } = req.params;
-      // Delete the actual review document
-    await review.findByIdAndDelete(reviewid);
-    // Remove the review reference from the listing
-    await listing.findByIdAndUpdate(id, { $pull: { reviews: reviewid } });
-    res.redirect(`/listings/${id}`);
-}));
-
-// 404 handler (for unknown routes)
+// 404
 app.use((req, res, next) => {
   next(new ExpressError(404, "Page Not Found"));
 });
 
-// FINAL error handler (renders error.ejs)// changed
+// Final error handler
 app.use((err, req, res, next) => {
   let { status = 500, message = "Something went wrong" } = err;
-
-  res.status(status).render("listings/error.ejs", { err });
+  res.status(status).render("listings/error", { err }); // better practice
 });
 
+// =================== SERVER ===================
 
-
-
-
+app.listen(3000, () => {
+  console.log("Server is running on port 3000");
+});
