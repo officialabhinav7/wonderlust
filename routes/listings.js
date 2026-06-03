@@ -5,6 +5,7 @@ const Listing = require("../models/listing");
 const wrapAsync = require("../utils/wrapAsync");
 const ExpressError = require("../utils/expressError");
 const { listingSchema } = require("../joi");
+const isloggedin=require("../isloggedin");
 
 // validation
 const validateListing = (req, res, next) => {
@@ -22,7 +23,7 @@ router.get("/", wrapAsync(async (req, res) => {
 }));
 
 // NEW
-router.get("/new", (req, res) => {
+router.get("/new",isloggedin, (req, res) => {
   res.render("listings/new");
 });
 
@@ -54,20 +55,20 @@ router.post("/", validateListing, wrapAsync(async (req, res) => {
 }));
 
 // EDIT
-router.get("/:id/edit", wrapAsync(async (req, res) => {
+router.get("/:id/edit",isloggedin, wrapAsync(async (req, res) => {
   const listing = await Listing.findById(req.params.id);
   res.render("listings/edit", { listing1: listing });
 }));
 
 // UPDATE
-router.put("/:id", validateListing, wrapAsync(async (req, res) => {
+router.put("/:id", validateListing,isloggedin, wrapAsync(async (req, res) => {
   await Listing.findByIdAndUpdate(req.params.id, req.body.listing);
    req.flash("success", "Listing Updated Successfully!");
   res.redirect(`/listings/${req.params.id}`);
 }));
 
 // DELETE
-router.delete("/:id", wrapAsync(async (req, res) => {
+router.delete("/:id",isloggedin, wrapAsync(async (req, res) => {
   await Listing.findByIdAndDelete(req.params.id);
    req.flash("success", "Listing Deleted Successfully!");
   res.redirect("/listings");

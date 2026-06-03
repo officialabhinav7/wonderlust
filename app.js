@@ -13,10 +13,16 @@ const Listing = require("./models/listing");
 const Review = require("./models/review");
  const session = require("express-session");
 const flash = require("connect-flash");
+const passport=require("passport");
+const LocalStrategy=require("passport-local").Strategy;
+const passportlocalmongoose=require("passport-local-mongoose");
+const User=require("./models/user.js");
+const isloggedin=require("./isloggedin.js");
+
 //flash middleware
 
 
-sessionconfig={
+const sessionconfig={
     secret:"secretstring",
     resave:false,
     saveUninitialized:true,
@@ -28,9 +34,19 @@ sessionconfig={
 }
 app.use(session(sessionconfig));
 app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+
+
+
 app.use((req, res, next) => {
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
+    res.locals.currentUser = req.user;
     next();
 });
 
@@ -39,6 +55,7 @@ app.use((req, res, next) => {
 // 🔥 ROUTES
 const listingRoutes = require("./routes/listings");
 const reviewRoutes = require("./routes/reviews");
+const userRoutes = require("./routes/users");
 
 // =================== CONFIG ===================
 
@@ -70,6 +87,7 @@ app.get("/", (req, res) => {
 // 🔥 USE ROUTERS
 app.use("/listings", listingRoutes);
 app.use("/listings/:id/reviews", reviewRoutes);
+app.use("/", userRoutes);
 
 // =================== ERROR HANDLING ===================
 
