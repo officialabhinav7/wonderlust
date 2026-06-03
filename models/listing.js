@@ -23,7 +23,11 @@ const mongoose=require("mongoose");
             type: mongoose.Schema.Types.ObjectId,
             ref: "review"
         }
-    ]
+    ],
+      owner:{
+        type:Schema.Types.ObjectId,
+        ref:"User"
+    }
 
  })
 
