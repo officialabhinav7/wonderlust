@@ -25,7 +25,7 @@ const mongoose=require("mongoose");
         }
     ],
       owner:{
-        type:Schema.Types.ObjectId,
+        type:schema.Types.ObjectId,
         ref:"User"
     }
 

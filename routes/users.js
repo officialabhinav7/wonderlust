@@ -2,7 +2,7 @@ const express=require("express");
 const router=express.Router();
 const passport=require("passport");
 
-const user=require("../models/user.js");
+const User=require("../models/user.js");
 const wrapAsync=require("../utils/wrapAsync.js");
 
 
@@ -14,8 +14,8 @@ router.get("/signup",(req,res)=>
 router.post("/signup",wrapAsync(async(req,res)=>
 {
        let  { username,password,email}=req.body;
-       const newuser=new user({ username,email});
-       const registereduser= await user.register(newuser,password);
+       const newuser=new User({ username,email});
+       const registereduser= await User.register(newuser,password);
        
      req.login(registereduser,(err)=>{
        if(err) {

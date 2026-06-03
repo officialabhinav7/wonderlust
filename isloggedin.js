@@ -1,3 +1,6 @@
+const Listing = require("./models/listing");
+const Review = require("./models/review");
+
 module.exports = (req, res, next) => {
     if (!req.isAuthenticated()) {
         req.session.redirectUrl = req.originalUrl;
@@ -23,7 +26,7 @@ async(req,res,next)=>{
     let listing =
     await Listing.findById(id);
 
-    if(!listing.owner.equals(req.user._id))
+    if(!listing || !listing.owner || !listing.owner.equals(req.user._id))
     {
         req.flash(
             "error",
@@ -46,7 +49,7 @@ async(req,res,next)=>{
     let review =
     await Review.findById(reviewId);
 
-    if(!review.author.equals(req.user._id))
+    if(!review || !review.author || !review.author.equals(req.user._id))
     {
         req.flash(
             "error",

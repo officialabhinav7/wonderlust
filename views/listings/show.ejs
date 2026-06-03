@@ -6,42 +6,55 @@
 
     <!-- Image -->
     <img 
-      src="<%= listing1.image?.url || listing1.image %>" 
+      src="<%= listing.image?.url || listing.image %>" 
       class="card-img-top mb-4" 
       style="max-height:400px; object-fit:cover; border-radius:10px;"
     >
-
+     <% if(listing.owner) { %>
+     <p>
+Hosted By :
+<b>
+<%= listing.owner.username %>
+</b>
+</p>
+     <% } %>
     <!-- Title -->
-    <h2 class="mb-3"><%= listing1.title %></h2>
+    <h2 class="mb-3"><%= listing.title %></h2>
 
     <!-- Price -->
-    <h4 class="text-success mb-3">₹ <%= listing1.price %></h4>
+    <h4 class="text-success mb-3">₹ <%= listing.price %></h4>
 
     <!-- Description -->
-    <p class="mb-3"><%= listing1.description %></p>
+    <p class="mb-3"><%= listing.description %></p>
 
     <!-- Location -->
     <p class="text-muted">
-      📍 <%= listing1.location %>, <%= listing1.country %>
+      📍 <%= listing.location %>, <%= listing.country %>
     </p>
 
-    <!-- Buttons -->
-   
+   <!-- Buttons -->
 
-      <!-- Edit -->
-      <form action="/listings/<%= listing1._id %>/edit" method="get">
-        <button class="btn btn-warning">Edit</button>
-      </form>
-   <br> 
-      <!-- Delete -->
-      <form method="post" action="/listings/<%= listing1._id %>?_method=delete">
-        
-        <button class="btn btn-danger">Delete</button>
-      </form>
-      <br>
-     <h3 class="mt-5">Add Review</h3>
+<% if(currentUser && listing.owner && listing.owner.equals(currentUser._id)){ %>
 
-<form action="/listings/<%= listing1._id %>/reviews" method="POST" class="d-flex flex-column gap-3 mt-3">
+  <!-- Edit -->
+  <form action="/listings/<%= listing._id %>/edit" method="GET">
+    <button class="btn btn-warning">Edit</button>
+  </form>
+
+  <br>
+
+  <!-- Delete -->
+  <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE">
+    <button class="btn btn-danger">Delete</button>
+  </form>
+
+  <br>
+
+<% } %>
+
+<h3 class="mt-5">Add Review</h3>
+
+<form action="/listings/<%= listing._id %>/reviews" method="POST" class="d-flex flex-column gap-3 mt-3">
 
   <div>
     <label class="form-label">Rating:</label>
@@ -69,7 +82,7 @@
 </form>
    <h2 class="mt-5 mb-4">Reviews</h2>
    <div class="row">
-     <% for(let review of listing1.reviews){ %>
+     <% for(let review of listing.reviews){ %>
        <div class="col-md-6 mb-3">
          <div class="card h-100 shadow-sm">
            <div class="card-body">
@@ -87,7 +100,7 @@
              </div>
              <p class="card-text"><%= review.comment %></p>
            </div>
-            <form action="/listings/<%= listing1._id %>/reviews/<%= review._id %>?_method=delete" method="POST">
+             <form action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=delete" method="POST">
                   <button>delete</button>
             </form>
          </div>
