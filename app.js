@@ -77,12 +77,17 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // =================== DB ===================
 
-mongoose.connect(dbUrl)
+mongoose.connect(dbUrl, {
+    retryWrites: false,
+    serverSelectionTimeoutMS: 5000,
+    tls: true,
+    tlsAllowInvalidCertificates: true
+})
 .then(() => {
     console.log("Mongo Atlas Connected");
 })
 .catch((err) => {
-    console.log(err);
+    console.log("MongoDB Connection Error:", err.message);
 });
 
 
