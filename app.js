@@ -95,7 +95,7 @@ mongoose.connect(dbUrl, {
 // =================== ROUTES ===================
 
 app.get("/", (req, res) => {
-  res.send("Hello World");
+    res.redirect("/listings");
 });
 
 // 🔥 USE ROUTERS
