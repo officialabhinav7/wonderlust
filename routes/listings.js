@@ -1,5 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
+const { storage } = require("../cloudConfig");
+
+const upload = multer({ storage });
 
 const wrapAsync = require("../utils/wrapAsync");
 const ExpressError = require("../utils/expressError");
@@ -40,11 +44,22 @@ router.get("/:id", wrapAsync(async (req, res) => {
 }));
 
 // CREATE
-router.post("/",isLoggedIn, validateListing, wrapAsync(async (req, res) => {
-  const newListing = await listingsCollection.createListing(req.body.listing, req.user._id);
-  req.flash("success", "New Listing Added Successfully!");
-  res.redirect(`/listings/${newListing._id}`);
-}));
+router.post(
+  "/",
+  isLoggedIn,
+  upload.single("listing[image]"),
+  validateListing,
+  wrapAsync(async (req, res) => {
+    const newListing = await listingsCollection.createListing(
+      req.body.listing,
+      req.user._id,
+      req.file
+    );
+
+    req.flash("success", "New Listing Added Successfully!");
+    res.redirect(`/listings/${newListing._id}`);
+  })
+);
 
 // EDIT
 router.get("/:id/edit" ,isLoggedIn,
@@ -54,8 +69,8 @@ isOwner, wrapAsync(async (req, res) => {
 }));
 
 // UPDATE
-router.put("/:id", validateListing,isLoggedIn,isOwner, wrapAsync(async (req, res) => {
-  await listingsCollection.updateListing(req.params.id, req.body.listing);
+router.put("/:id", validateListing,isLoggedIn,isOwner, upload.single("listing[image]"), wrapAsync(async (req, res) => {
+  await listingsCollection.updateListing(req.params.id, req.body.listing,req.file);
   req.flash("success", "Listing Updated Successfully!");
   res.redirect(`/listings/${req.params.id}`);
 }));

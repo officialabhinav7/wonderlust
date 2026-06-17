@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -12,6 +14,7 @@ const { listingSchema } = require("./joi");
 const Listing = require("./models/listing");
 const Review = require("./models/review");
  const session = require("express-session");
+const MongoStore = require("connect-mongo").default;
 const flash = require("connect-flash");
 const passport=require("passport");
 const LocalStrategy=require("passport-local").Strategy;
@@ -21,9 +24,14 @@ const isloggedin=require("./isloggedin.js");
 
 //flash middleware
 
+const dbUrl = process.env.dburl;
 
 const sessionconfig={
-    secret:"secretstring",
+    store: new MongoStore({
+        mongoUrl: dbUrl,
+        touchAfter: 24 * 3600 // lazy session update (in seconds)
+    }),
+    secret:process.env.secret,
     resave:false,
     saveUninitialized:true,
     cookie:{
@@ -57,7 +65,7 @@ const listingRoutes = require("./routes/listings");
 const reviewRoutes = require("./routes/reviews");
 const userRoutes = require("./routes/users");
 
-// =================== CONFIG ===================
+// =================== CONFIG ===================ī
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -69,14 +77,15 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // =================== DB ===================
 
-async function main() {
-  await mongoose.connect("mongodb://127.0.0.1:27017/wonderlust");
-  console.log("Connected to MongoDB");
-}
+mongoose.connect(dbUrl)
+.then(() => {
+    console.log("Mongo Atlas Connected");
+})
+.catch((err) => {
+    console.log(err);
+});
 
-main()
-  .then(() => console.log("DB connected"))
-  .catch((err) => console.log(err));
+
 
 // =================== ROUTES ===================
 

@@ -5,7 +5,9 @@
   <div class="card shadow p-4">
     <h3 class="mb-4">Edit Listing</h3>
 
-    <form action="/listings/<%= listing._id %>?_method=put" method="post">
+    <form action="/listings/<%= listing._id %>?_method=PUT"
+      method="POST"
+      enctype="multipart/form-data">
 
       <label class="form-label">Title</label>
       <input class="form-control mb-3" type="text" name="listing[title]" value="<%= listing.title %>" required>
@@ -13,8 +15,22 @@
       <label class="form-label">Description</label>
       <textarea class="form-control mb-3" name="listing[description]" required><%= listing.description %></textarea>
 
-      <label class="form-label">Image URL</label>
-      <input class="form-control mb-2" id="imageInput" name="listing[image]" value="<%= listing.image %>">
+     <label class="form-label">Current Image</label>
+
+<img
+  src="<%= listing.image.url %>"
+  class="img-fluid rounded mb-3"
+  style="max-height:250px;"
+>
+
+<label class="form-label">Upload New Image</label>
+
+<input
+  type="file"
+  class="form-control mb-3"
+  name="listing[image]"
+  accept="image/*"
+>
 
       <!-- Image Preview -->
       <img id="preview" src="<%= listing.image %>" class="mb-3" style="max-width:200px; border-radius:10px;">

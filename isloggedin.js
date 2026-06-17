@@ -63,3 +63,16 @@ async(req,res,next)=>{
 
     next();
 };
+
+// Import multer package
+const multer = require("multer");
+
+// Import storage object from cloudConfig.js
+const { storage } = require("./cloudConfig");
+
+// Create upload middleware
+const upload = multer({
+
+    // Store files using Cloudinary
+    storage
+});
